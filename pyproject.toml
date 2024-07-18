@@ -14,3 +14,22 @@ dynamic = ["version"]
 [tool.maturin]
 features = ["pyo3/extension-module"]
 python-source = "pqtree/"
+
+[tool.pixi.project]
+description = "Faster PQ Tree library for Python"
+authors = ["Parsa Bahraminejad <pbahrami@uwaterloo.ca>"]
+channels = ["conda-forge"]
+platforms = ["osx-arm64"]
+
+[tool.pixi.pypi-dependencies]
+pqtree_rs = { path = ".", editable = true }
+
+[tool.pixi.tasks]
+publish = "maturin publish " 
+build = "maturin build"
+dev = "maturin develop"
+test = "pytest"
+
+[tool.pixi.feature.test.dependencies]
+pytest = "*"
+pytest-cov = "*"

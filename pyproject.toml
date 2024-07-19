@@ -17,7 +17,7 @@ python-source = "pqtree/"
 
 [tool.pixi.project]
 description = "Faster PQ Tree library for Python"
-authors = ["Parsa Bahraminejad <pbahrami@uwaterloo.ca>"]
+authors = ["Parsa Bahraminejad <pbahrami@uwaterloo.ca>", "Alireza Mohaghegh Dolatabadi <a3mohagh@uwaterloo.ca>"]
 channels = ["conda-forge"]
 platforms = ["osx-arm64"]
 

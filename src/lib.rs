@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-use pyo3::types::{PyList, PySet, PyAny};
+use pyo3::types::PyAny;
 
 #[pyclass(module = "pqtree", get_all)]
 struct P{
@@ -37,6 +37,60 @@ impl P{
         self.children.reverse();
     }
 
+    fn __repr__(&self, py: Python) -> PyResult<String> {
+        let mut result = String::from("P{");
+        let mut first = true;
+
+        for child in &self.children {
+            if !first {
+                result.push_str(", ");
+            }
+            first = false;
+
+            // Recursively format if the child is an instance of P or Q
+
+            if let Ok(py_obj) = child.extract::<PyObject>(py) {
+                if let Ok(p_obj) = py_obj.downcast_bound::<P>(py) {
+                    result.push_str(&p_obj.borrow().__repr__(py)?);
+                } else if let Ok(q_obj) = py_obj.downcast_bound::<Q>(py) {
+                    result.push_str(&q_obj.borrow().__repr__(py)?);
+                } else if let Ok(obj) = py_obj.downcast_bound::<PyAny>(py){
+                    result.push_str(obj.str()?.to_str()?);
+                }
+            }
+        }
+
+        result.push('}');
+        Ok(result)
+    }
+
+
+    fn __str__(&self, py: Python) -> PyResult<String> {
+        let mut result = String::from("P{");
+        let mut first = true;
+
+        for child in &self.children {
+            if !first {
+                result.push_str(", ");
+            }
+            first = false;
+
+            // Recursively format if the child is an instance of P or Q
+
+            if let Ok(py_obj) = child.extract::<PyObject>(py) {
+                if let Ok(p_obj) = py_obj.downcast_bound::<P>(py) {
+                    result.push_str(&p_obj.borrow().__str__(py)?);
+                } else if let Ok(q_obj) = py_obj.downcast_bound::<Q>(py) {
+                    result.push_str(&q_obj.borrow().__str__(py)?);
+                } else if let Ok(obj) = py_obj.downcast_bound::<PyAny>(py){
+                    result.push_str(obj.str()?.to_str()?);
+                }
+            }
+        }
+
+        result.push('}');
+        Ok(result)
+    }
 
 
 }
@@ -63,6 +117,59 @@ impl Q{
         self.children.reverse();
     }
     
+    fn __repr__(&self, py: Python) -> PyResult<String> {
+        let mut result = String::from("Q{");
+        let mut first = true;
+
+        for child in &self.children {
+            if !first {
+                result.push_str(", ");
+            }
+            first = false;
+
+            // Recursively format if the child is an instance of P or Q
+
+            if let Ok(py_obj) = child.extract::<PyObject>(py) {
+                if let Ok(p_obj) = py_obj.downcast_bound::<P>(py) {
+                    result.push_str(&p_obj.borrow().__repr__(py)?);
+                } else if let Ok(q_obj) = py_obj.downcast_bound::<Q>(py) {
+                    result.push_str(&q_obj.borrow().__repr__(py)?);
+                } else if let Ok(obj) = py_obj.downcast_bound::<PyAny>(py){
+                    result.push_str(obj.str()?.to_str()?);
+                }
+            }
+        }
+
+        result.push('}');
+        Ok(result)
+    }
+
+    fn __str__(&self, py: Python) -> PyResult<String> {
+        let mut result = String::from("Q{");
+        let mut first = true;
+
+        for child in &self.children {
+            if !first {
+                result.push_str(", ");
+            }
+            first = false;
+
+            // Recursively format if the child is an instance of P or Q
+
+            if let Ok(py_obj) = child.extract::<PyObject>(py) {
+                if let Ok(p_obj) = py_obj.downcast_bound::<P>(py) {
+                    result.push_str(&p_obj.borrow().__str__(py)?);
+                } else if let Ok(q_obj) = py_obj.downcast_bound::<Q>(py) {
+                    result.push_str(&q_obj.borrow().__str__(py)?);
+                } else if let Ok(obj) = py_obj.downcast_bound::<PyAny>(py){
+                    result.push_str(obj.str()?.to_str()?);
+                }
+            }
+        }
+
+        result.push('}');
+        Ok(result)
+    }
 }
 
 

@@ -3,7 +3,7 @@ requires = ["maturin>=1.7,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "pqtree_rs"
+name = "pqtree"
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Rust",
@@ -13,7 +13,7 @@ classifiers = [
 dynamic = ["version"]
 [tool.maturin]
 features = ["pyo3/extension-module"]
-python-source = "pqtree/"
+python-source = "."
 
 [tool.pixi.project]
 description = "Faster PQ Tree library for Python"
@@ -22,7 +22,7 @@ channels = ["conda-forge"]
 platforms = ["osx-arm64"]
 
 [tool.pixi.pypi-dependencies]
-pqtree_rs = { path = ".", editable = true }
+pqtree = { path = ".", editable = true }
 
 [tool.pixi.tasks]
 publish = "maturin publish " 

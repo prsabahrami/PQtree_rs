@@ -1,3 +1,4 @@
+use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use pyo3::types::PyAny;
 
@@ -9,6 +10,16 @@ struct P{
 #[pyclass(module = "pqtree", get_all)]
 struct Q{
     children: Vec<PyObject>,
+}
+
+fn _flatten(obj: PyObject, py: Python) -> PyResult<Py<PyAny>> {
+    if let Ok(p_obj) = obj.downcast_bound::<P>(py) {
+        p_obj.borrow_mut().flatten(py)
+    } else if let Ok(q_obj) = obj.downcast_bound::<Q>(py) {
+        q_obj.borrow_mut().flatten(py)
+    } else {
+        Ok(obj)
+    } 
 }
 
 #[pymethods]
@@ -107,6 +118,26 @@ impl P{
     }
 
 
+    fn flatten(&mut self, py: Python) -> PyResult<Py<PyAny>>{
+        if self.number_of_children() == 1 {
+            if let Ok(obj) = self.get_children(py).first().unwrap().extract::<PyObject>(py) {
+                _flatten(obj, py)
+            }
+            else {
+                Err(PyErr::new::<PyTypeError, _>("Error"))
+            }
+        }
+        else {
+            for child in &mut self.children {
+                if let Ok(obj) = child.extract::<PyObject>(py) {
+                   *child = _flatten(obj, py)?;
+                }
+            }
+            Ok(Self {children: self.get_children(py)}.into_py(py))
+            
+        }
+    }
+
 }
 
 #[pymethods]
@@ -197,6 +228,27 @@ impl Q{
             }
         }
         copy_children
+    }
+
+
+    
+    fn flatten(&mut self, py: Python) -> PyResult<Py<PyAny>> {
+        if self.number_of_children() == 1 {
+            if let Ok(obj) = self.get_children(py).first().unwrap().extract::<PyObject>(py) {
+                _flatten(obj, py)
+            }
+            else {
+                Err(PyErr::new::<PyTypeError, _>("Error"))
+            }
+        } else {
+            for child in &mut self.children {
+                if let Ok(obj) = child.extract::<PyObject>(py) {
+                   *child = _flatten(obj, py)?;
+                }
+            }
+            Ok(Self {children: self.get_children(py)}.into_py(py))
+            
+        }
     }
 }
 

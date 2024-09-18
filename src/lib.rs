@@ -92,6 +92,20 @@ impl P{
         Ok(result)
     }
 
+    fn number_of_children(&self) -> usize {
+        self.children.len()
+    }
+
+    fn get_children(&self, py: Python) -> Vec<PyObject> {
+        let mut copy_children = Vec::new();
+        for child in &self.children {
+            if let Ok(ch) =  child.extract::<PyObject>(py){
+                copy_children.push(ch);
+            }
+        }
+        copy_children
+    }
+
 
 }
 
@@ -169,6 +183,20 @@ impl Q{
 
         result.push('}');
         Ok(result)
+    }
+
+    fn number_of_children(&self) -> usize {
+        self.children.len()
+    }
+
+    fn get_children(&self, py: Python) -> Vec<PyObject> {
+        let mut copy_children = Vec::new();
+        for child in &self.children {
+            if let Ok(ch) =  child.extract::<PyObject>(py){
+                copy_children.push(ch);
+            }
+        }
+        copy_children
     }
 }
 

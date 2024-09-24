@@ -1,10 +1,24 @@
 use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use pyo3::types::PyAny;
+use std::fmt::Debug;
+use std::fmt;
 
 #[pyclass(module = "pqtree", get_all)]
 struct P{
     children: Vec<PyObject>,
+}
+
+impl Debug for P {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "P{{{:?}}}", self.children)
+    }
+}
+
+impl Debug for Q {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Q{{{:?}}}", self.children)
+    }
 }
 
 #[pyclass(module = "pqtree", get_all)]
@@ -138,6 +152,21 @@ impl P{
         }
     }
 
+    fn ordering(&self, py: Python) -> Vec<PyObject> {
+        let mut value = Vec::new();
+        for child in &self.children {
+            if let Ok(py_obj) = child.extract::<PyObject>(py) {
+                if let Ok(p_obj) = py_obj.downcast_bound::<P>(py) {
+                    value.extend(p_obj.borrow().ordering(py));
+                } else if let Ok(q_obj) = py_obj.downcast_bound::<Q>(py) {
+                    value.extend(q_obj.borrow().ordering(py));
+                } else {
+                    value.push(py_obj);
+                }
+            }
+        }
+        value
+    }
 }
 
 #[pymethods]
@@ -249,6 +278,22 @@ impl Q{
             Ok(Self {children: self.get_children(py)}.into_py(py))
             
         }
+    }
+
+    fn ordering(&self, py: Python) -> Vec<PyObject> {
+        let mut value = Vec::new();
+        for child in &self.children {
+            if let Ok(py_obj) = child.extract::<PyObject>(py) {
+                if let Ok(p_obj) = py_obj.downcast_bound::<P>(py) {
+                    value.extend(p_obj.borrow().ordering(py));
+                } else if let Ok(q_obj) = py_obj.downcast_bound::<Q>(py) {
+                    value.extend(q_obj.borrow().ordering(py));
+                } else {
+                    value.push(py_obj);
+                }
+            }
+        }
+        value
     }
 }
 

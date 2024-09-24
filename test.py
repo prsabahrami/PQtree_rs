@@ -35,6 +35,13 @@ def test2():
 
     print(t.get_children())
 
+
+def test3():
+    p = Q([[1,2], [2,3], P([[2,4], [2,8], [2,9]])])
+
+    print("Ordering:", p.ordering())
+
 if __name__ == '__main__':
     test1()
     test2()
+    test3()

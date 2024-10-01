@@ -1,7 +1,7 @@
 from pqtree import P, Q
 
 
-def test1():
+def basic_test():
     print("Test 1")
     p = P([1, Q([4, 5]), 3])
 
@@ -16,7 +16,7 @@ def test1():
     print(type(p.get_children()[2]))
 
 
-def test2():
+def flatten_test():
     print("Test 2")
     p = P([P([1, 2, 3, Q([4, 5])])])
 
@@ -36,12 +36,27 @@ def test2():
     print(t.get_children())
 
 
-def test3():
+def ordering_test():
     p = Q([[1,2], [2,3], P([[2,4], [2,8], [2,9]])])
 
     print("Ordering:", p.ordering())
 
+def cardinality_test():
+    p = P([1,2,3,4,5])
+
+    q = Q([1,2,3,4,5])
+
+    print("Cardinality:", p.cardinality())
+
+    print("Cardinality:", q.cardinality())
+
+
+    p = P([1, 2, 3, Q([4, 5, 6]), P([7, 8, 9])])
+
+    print("Cardinality:", p.cardinality())
+
 if __name__ == '__main__':
-    test1()
-    test2()
-    test3()
+    basic_test()
+    flatten_test()
+    ordering_test()
+    cardinality_test()

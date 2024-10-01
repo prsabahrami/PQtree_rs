@@ -36,6 +36,13 @@ fn _flatten(obj: PyObject, py: Python) -> PyResult<Py<PyAny>> {
     } 
 }
 
+fn factorial(n: u128) -> u128 {
+    if n == 0 {
+        return 1;
+    }
+    n * factorial(n - 1)
+}
+
 #[pymethods]
 impl P{
     #[new]
@@ -167,6 +174,20 @@ impl P{
         }
         value
     }
+
+    fn cardinality(&self, py: Python) -> u128 {
+        let mut n: u128 = factorial(self.number_of_children() as u128);
+        for child in &self.children {
+            if let Ok(py_obj) = child.extract::<PyObject>(py) {
+                if let Ok(p_obj) = py_obj.downcast_bound::<P>(py) {
+                    n *= p_obj.borrow().cardinality(py);
+                } else if let Ok(q_obj) = py_obj.downcast_bound::<Q>(py) {
+                    n *= q_obj.borrow().cardinality(py);
+                }
+            }
+        }
+        n
+    }
 }
 
 #[pymethods]
@@ -294,6 +315,24 @@ impl Q{
             }
         }
         value
+    }
+
+    fn cardinality(&self, py: Python) -> u128 {
+        let mut n: u128 = 1;
+        for child in &self.children {
+            if let Ok(py_obj) = child.extract::<PyObject>(py) {
+                if let Ok(p_obj) = py_obj.downcast_bound::<P>(py) {
+                    n *= p_obj.borrow().cardinality(py);
+                } else if let Ok(q_obj) = py_obj.downcast_bound::<Q>(py) {
+                    n *= q_obj.borrow().cardinality(py);
+                }
+            }
+        }
+        if self.number_of_children() == 1 {
+            n
+        } else {
+            n * 2
+        }
     }
 }
 

@@ -1,11 +1,11 @@
 use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use pyo3::types::PyAny;
-use std::fmt::Debug;
 use std::fmt;
+use std::fmt::Debug;
 
 #[pyclass(module = "pqtree", get_all)]
-struct P{
+struct P {
     children: Vec<PyObject>,
 }
 
@@ -22,7 +22,7 @@ impl Debug for Q {
 }
 
 #[pyclass(module = "pqtree", get_all)]
-struct Q{
+struct Q {
     children: Vec<PyObject>,
 }
 
@@ -33,7 +33,7 @@ fn _flatten(obj: PyObject, py: Python) -> PyResult<Py<PyAny>> {
         q_obj.borrow_mut().flatten(py)
     } else {
         Ok(obj)
-    } 
+    }
 }
 
 fn factorial(n: u128) -> u128 {
@@ -44,15 +44,13 @@ fn factorial(n: u128) -> u128 {
 }
 
 #[pymethods]
-impl P{
+impl P {
     #[new]
     fn new(children: Vec<PyObject>) -> Self {
-        P{children}
+        P { children }
     }
 
     fn reverse(&mut self, py: Python) {
-
-
         for child in &mut self.children {
             if let Ok(py_obj) = child.extract::<PyObject>(py) {
                 // Check if the object is an instance of Q
@@ -86,7 +84,7 @@ impl P{
                     result.push_str(&p_obj.borrow().__repr__(py)?);
                 } else if let Ok(q_obj) = py_obj.downcast_bound::<Q>(py) {
                     result.push_str(&q_obj.borrow().__repr__(py)?);
-                } else if let Ok(obj) = py_obj.downcast_bound::<PyAny>(py){
+                } else if let Ok(obj) = py_obj.downcast_bound::<PyAny>(py) {
                     result.push_str(obj.str()?.to_str()?);
                 }
             }
@@ -95,7 +93,6 @@ impl P{
         result.push('}');
         Ok(result)
     }
-
 
     fn __str__(&self, py: Python) -> PyResult<String> {
         let mut result = String::from("P{");
@@ -114,7 +111,7 @@ impl P{
                     result.push_str(&p_obj.borrow().__str__(py)?);
                 } else if let Ok(q_obj) = py_obj.downcast_bound::<Q>(py) {
                     result.push_str(&q_obj.borrow().__str__(py)?);
-                } else if let Ok(obj) = py_obj.downcast_bound::<PyAny>(py){
+                } else if let Ok(obj) = py_obj.downcast_bound::<PyAny>(py) {
                     result.push_str(obj.str()?.to_str()?);
                 }
             }
@@ -131,31 +128,35 @@ impl P{
     fn get_children(&self, py: Python) -> Vec<PyObject> {
         let mut copy_children = Vec::new();
         for child in &self.children {
-            if let Ok(ch) =  child.extract::<PyObject>(py){
+            if let Ok(ch) = child.extract::<PyObject>(py) {
                 copy_children.push(ch);
             }
         }
         copy_children
     }
 
-
-    fn flatten(&mut self, py: Python) -> PyResult<Py<PyAny>>{
+    fn flatten(&mut self, py: Python) -> PyResult<Py<PyAny>> {
         if self.number_of_children() == 1 {
-            if let Ok(obj) = self.get_children(py).first().unwrap().extract::<PyObject>(py) {
+            if let Ok(obj) = self
+                .get_children(py)
+                .first()
+                .unwrap()
+                .extract::<PyObject>(py)
+            {
                 _flatten(obj, py)
-            }
-            else {
+            } else {
                 Err(PyErr::new::<PyTypeError, _>("Error"))
             }
-        }
-        else {
+        } else {
             for child in &mut self.children {
                 if let Ok(obj) = child.extract::<PyObject>(py) {
-                   *child = _flatten(obj, py)?;
+                    *child = _flatten(obj, py)?;
                 }
             }
-            Ok(Self {children: self.get_children(py)}.into_py(py))
-            
+            Ok(Self {
+                children: self.get_children(py),
+            }
+            .into_py(py))
         }
     }
 
@@ -191,10 +192,10 @@ impl P{
 }
 
 #[pymethods]
-impl Q{
+impl Q {
     #[new]
     fn new(children: Vec<PyObject>) -> Self {
-        Q{children}
+        Q { children }
     }
 
     fn reverse(&mut self, py: Python) {
@@ -211,7 +212,7 @@ impl Q{
 
         self.children.reverse();
     }
-    
+
     fn __repr__(&self, py: Python) -> PyResult<String> {
         let mut result = String::from("Q{");
         let mut first = true;
@@ -229,7 +230,7 @@ impl Q{
                     result.push_str(&p_obj.borrow().__repr__(py)?);
                 } else if let Ok(q_obj) = py_obj.downcast_bound::<Q>(py) {
                     result.push_str(&q_obj.borrow().__repr__(py)?);
-                } else if let Ok(obj) = py_obj.downcast_bound::<PyAny>(py){
+                } else if let Ok(obj) = py_obj.downcast_bound::<PyAny>(py) {
                     result.push_str(obj.str()?.to_str()?);
                 }
             }
@@ -256,7 +257,7 @@ impl Q{
                     result.push_str(&p_obj.borrow().__str__(py)?);
                 } else if let Ok(q_obj) = py_obj.downcast_bound::<Q>(py) {
                     result.push_str(&q_obj.borrow().__str__(py)?);
-                } else if let Ok(obj) = py_obj.downcast_bound::<PyAny>(py){
+                } else if let Ok(obj) = py_obj.downcast_bound::<PyAny>(py) {
                     result.push_str(obj.str()?.to_str()?);
                 }
             }
@@ -273,31 +274,35 @@ impl Q{
     fn get_children(&self, py: Python) -> Vec<PyObject> {
         let mut copy_children = Vec::new();
         for child in &self.children {
-            if let Ok(ch) =  child.extract::<PyObject>(py){
+            if let Ok(ch) = child.extract::<PyObject>(py) {
                 copy_children.push(ch);
             }
         }
         copy_children
     }
 
-
-    
     fn flatten(&mut self, py: Python) -> PyResult<Py<PyAny>> {
         if self.number_of_children() == 1 {
-            if let Ok(obj) = self.get_children(py).first().unwrap().extract::<PyObject>(py) {
+            if let Ok(obj) = self
+                .get_children(py)
+                .first()
+                .unwrap()
+                .extract::<PyObject>(py)
+            {
                 _flatten(obj, py)
-            }
-            else {
+            } else {
                 Err(PyErr::new::<PyTypeError, _>("Error"))
             }
         } else {
             for child in &mut self.children {
                 if let Ok(obj) = child.extract::<PyObject>(py) {
-                   *child = _flatten(obj, py)?;
+                    *child = _flatten(obj, py)?;
                 }
             }
-            Ok(Self {children: self.get_children(py)}.into_py(py))
-            
+            Ok(Self {
+                children: self.get_children(py),
+            }
+            .into_py(py))
         }
     }
 
@@ -336,13 +341,9 @@ impl Q{
     }
 }
 
-
-#[pymodule(name="pqtree")]
+#[pymodule(name = "pqtree")]
 fn pqtrees_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<P>()?;
     m.add_class::<Q>()?;
     Ok(())
 }
-
-
-
